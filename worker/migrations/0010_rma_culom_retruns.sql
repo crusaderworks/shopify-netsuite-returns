@@ -1,0 +1,1 @@
+ALTER TABLE returns ADD COLUMN rma_number TEXT;

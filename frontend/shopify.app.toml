@@ -1,0 +1,45 @@
+
+# Shopify CLI app configuration
+
+client_id = "0fee8d770cf615d823922004e280522f"
+name = "NetSuite Returns"
+application_url = "https://shopify.dev/apps/default-app-home"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+
+[webhooks]
+api_version = "2026-10"
+
+[access_scopes]
+scopes = "read_orders,read_customers"
+
+[auth]
+redirect_urls = [
+  "https://shopify.dev/apps/default-app-home/api/auth"
+]
+
+
+
+# Shopify CLI app configuration
+
+client_id = "0fee8d770cf615d823922004e280522f"
+name = "NetSuite Returns"
+application_url = "https://your-worker-subdomain.workers.dev" # Yahan apna actual Worker URL ya Tunnel URL daalein
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+
+[webhooks]
+api_version = "2026-10"
+# Optional: Aap webhook subscriptions yahan bhi declare kar sakte hain ya Partner Dashboard se set kar sakte hain
+
+[access_scopes]
+scopes = "read_orders,read_customers"
+
+[auth]
+redirect_urls = [
+  "https://your-worker-subdomain.workers.dev/api/auth/callback"
+]

@@ -1,0 +1,500 @@
+
+<div id="netsuite-returns-{{ block.id }}" class="nsr">
+  <div class="nsr__container">
+
+    <div class="nsr__eyebrow">
+      <span class="nsr__eyebrow-line"></span>
+      RETURNS &amp; SUPPORT
+    </div>
+
+    <h2 class="nsr__title">{{ block.settings.heading | escape }}</h2>
+    <p class="nsr__intro">{{ block.settings.description | escape }}</p>
+
+    <div class="nsr__tabs" role="tablist" aria-label="Return request type">
+      <button type="button" class="nsr__tab is-active" data-tab="website" role="tab" aria-selected="true">
+        <span class="nsr__tab-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M7 17 17 7M7 7h10v10" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="nsr__tab-copy">
+          <strong>Through Website</strong>
+          <small>Orders placed on our online store</small>
+        </span>
+        <span class="nsr__radio" aria-hidden="true"></span>
+      </button>
+
+      <button type="button" class="nsr__tab" data-tab="assisted" role="tab" aria-selected="false">
+        <span class="nsr__tab-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5.5" width="17" height="13" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="m4.5 7 7.5 5.5L19.5 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="nsr__tab-copy">
+          <strong>Through Call or Email</strong>
+          <small>Orders placed with our sales or support team</small>
+        </span>
+        <span class="nsr__radio" aria-hidden="true"></span>
+      </button>
+    </div>
+
+    <form id="nsr-website-{{ block.id }}" class="nsr__form" data-form="website">
+      <div class="nsr__form-heading">
+        <h3>Find your order</h3>
+        <p>Use the order number and email address provided at checkout.</p>
+      </div>
+
+      <div class="nsr__field">
+        <label for="nsr-order-{{ block.id }}">Order Number <span>*</span></label>
+        <input id="nsr-order-{{ block.id }}" name="order_number" type="text" placeholder="e.g. 10582 or #10582" autocomplete="off" required>
+      </div>
+
+      <div class="nsr__field">
+        <label for="nsr-email-{{ block.id }}">Email Address <span>*</span></label>
+        <input id="nsr-email-{{ block.id }}" name="email" type="email" placeholder="Email used at checkout" autocomplete="email" required>
+        <small class="nsr__field-help">Enter the email address associated with your order.</small>
+      </div>
+
+      <button class="nsr__submit" type="submit">
+        <span>Find order &amp; continue</span>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+
+      <p class="nsr__notice" aria-live="polite" role="status"></p>
+      <p class="nsr__privacy">Your details will be used to verify your order and manage your return request.</p>
+    </form>
+
+    <form id="nsr-assisted-{{ block.id }}" class="nsr__form" data-form="assisted" hidden>
+      <div class="nsr__form-heading">
+        <h3>Find your invoice</h3>
+        <p>Enter the details provided by our sales or support team.</p>
+      </div>
+
+      <div class="nsr__field">
+        <label for="nsr-customer-{{ block.id }}">Customer ID <span>*</span></label>
+        <input id="nsr-customer-{{ block.id }}" name="customer_id" type="text" placeholder="Customer ID on your invoice" required>
+      </div>
+
+      <div class="nsr__field">
+        <label for="nsr-invoice-{{ block.id }}">Invoice Number <span>*</span></label>
+        <input id="nsr-invoice-{{ block.id }}" name="invoice_number" type="text" placeholder="e.g. INV-24891 or 24891" required>
+      </div>
+
+      <div class="nsr__field">
+        <label for="nsr-contact-{{ block.id }}">Contact Email <span>*</span></label>
+        <input id="nsr-contact-{{ block.id }}" name="contact_email" type="email" placeholder="Your contact email" autocomplete="email" required>
+        <small class="nsr__field-help">We will use this email for return-related communication.</small>
+      </div>
+
+      <button class="nsr__submit" type="submit">
+        <span>Continue with return request</span>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+
+      <p class="nsr__notice" aria-live="polite" role="status"></p>
+      <p class="nsr__privacy">Your details will be used to identify your invoice and manage your return request.</p>
+    </form>
+
+    <div class="nsr__instructions">
+      <div class="nsr__instructions-heading">
+        <span class="nsr__instructions-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 11v5m0-8h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </span>
+        <h3>What happens next?</h3>
+      </div>
+
+      <ol class="nsr__steps">
+        <li><span class="nsr__step-number">1</span><span>Pack the items securely, preferably in their original packaging.</span></li>
+        <li><span class="nsr__step-number">2</span><span>Wait for your return instructions and return ID by email.</span></li>
+        <li><span class="nsr__step-number">3</span><span>Follow the shipping instructions provided for your return.</span></li>
+        <li><span class="nsr__step-number">4</span><span>Once received and inspected, your return will be processed according to the store's return policy.</span></li>
+      </ol>
+    </div>
+
+  </div>
+</div>
+
+<style>
+#netsuite-returns-{{ block.id }} {
+  --nsr-accent: {{ block.settings.accent_color }};
+  --nsr-text: #262626;
+  --nsr-muted: #777777;
+  --nsr-border: #e8e8e8;
+  color: var(--nsr-text);
+  padding: 42px 20px;
+  font-family: inherit;
+  background: #fff;
+}
+#netsuite-returns-{{ block.id }} *,
+#netsuite-returns-{{ block.id }} *::before,
+#netsuite-returns-{{ block.id }} *::after {
+  box-sizing: border-box;
+}
+#netsuite-returns-{{ block.id }} .nsr__container {
+  width: 100%;
+  max-width: 768px;
+  margin: 0 auto;
+}
+#netsuite-returns-{{ block.id }} .nsr__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 16px;
+  color: var(--nsr-muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+}
+#netsuite-returns-{{ block.id }} .nsr__eyebrow-line {
+  display: inline-block;
+  width: 22px;
+  height: 2px;
+  background: var(--nsr-accent);
+}
+#netsuite-returns-{{ block.id }} .nsr__title {
+  margin: 0 0 12px;
+  color: var(--nsr-text);
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.2;
+  font-weight: 650;
+  letter-spacing: -1px;
+}
+#netsuite-returns-{{ block.id }} .nsr__intro {
+  margin: 0 0 32px;
+  color: var(--nsr-muted);
+  font-size: 15px;
+  line-height: 1.7;
+}
+#netsuite-returns-{{ block.id }} .nsr__tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+#netsuite-returns-{{ block.id }} .nsr__tab {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 0;
+  min-height: 110px;
+  padding: 19px 16px;
+  border: 1px solid var(--nsr-border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--nsr-text);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+}
+#netsuite-returns-{{ block.id }} .nsr__tab.is-active {
+  border-color: #777;
+  background: #fafafa;
+}
+#netsuite-returns-{{ block.id }} .nsr__tab-icon {
+  display: flex;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--nsr-border);
+  border-radius: 8px;
+  color: var(--nsr-text);
+}
+#netsuite-returns-{{ block.id }} .nsr__tab-icon svg {
+  display: block;
+  width: 21px;
+  height: 21px;
+}
+#netsuite-returns-{{ block.id }} .nsr__tab-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 7px;
+  padding-top: 3px;
+}
+#netsuite-returns-{{ block.id }} .nsr__tab-copy strong {
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+#netsuite-returns-{{ block.id }} .nsr__tab-copy small {
+  color: var(--nsr-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+#netsuite-returns-{{ block.id }} .nsr__radio {
+  display: flex;
+  flex: 0 0 17px;
+  width: 17px;
+  height: 17px;
+  margin-top: 3px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ccc;
+  border-radius: 50%;
+}
+#netsuite-returns-{{ block.id }} .nsr__tab.is-active .nsr__radio {
+  border: 5px solid var(--nsr-text);
+}
+#netsuite-returns-{{ block.id }} .nsr__form {
+  padding: 28px;
+  border: 1px solid var(--nsr-border);
+  border-radius: 11px;
+  background: #fff;
+}
+#netsuite-returns-{{ block.id }} .nsr__form[hidden] {
+  display: none !important;
+}
+#netsuite-returns-{{ block.id }} .nsr__form-heading {
+  margin-bottom: 27px;
+}
+#netsuite-returns-{{ block.id }} .nsr__form-heading h3 {
+  margin: 0 0 10px;
+  color: var(--nsr-text);
+  font-size: 20px;
+  line-height: 1.4;
+  font-weight: 650;
+}
+#netsuite-returns-{{ block.id }} .nsr__form-heading p {
+  margin: 0;
+  color: var(--nsr-muted);
+  font-size: 14px;
+  line-height: 1.65;
+}
+#netsuite-returns-{{ block.id }} .nsr__field {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-bottom: 22px;
+}
+#netsuite-returns-{{ block.id }} .nsr__field label {
+  color: var(--nsr-text);
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 650;
+}
+#netsuite-returns-{{ block.id }} .nsr__field label span {
+  color: #c0392b;
+}
+#netsuite-returns-{{ block.id }} .nsr__field input {
+  display: block;
+  width: 100%;
+  min-height: 52px;
+  margin: 0;
+  padding: 13px 14px;
+  border: 1px solid #dedede;
+  border-radius: 5px;
+  outline: none;
+  background: #fff;
+  color: var(--nsr-text);
+  font-family: inherit;
+  font-size: 14px;
+  box-shadow: none;
+}
+#netsuite-returns-{{ block.id }} .nsr__field input::placeholder {
+  color: #999;
+  opacity: 1;
+}
+#netsuite-returns-{{ block.id }} .nsr__field input:focus {
+  border-color: var(--nsr-accent);
+  box-shadow: 0 0 0 1px var(--nsr-accent);
+}
+#netsuite-returns-{{ block.id }} .nsr__field-help {
+  color: var(--nsr-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+#netsuite-returns-{{ block.id }} .nsr__submit {
+  display: flex;
+  width: 100%;
+  min-height: 54px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 5px 0 0;
+  padding: 14px 20px;
+  border: 1px solid var(--nsr-accent);
+  border-radius: 5px;
+  background: var(--nsr-accent);
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: opacity .2s;
+}
+#netsuite-returns-{{ block.id }} .nsr__submit:hover {
+  opacity: .88;
+}
+#netsuite-returns-{{ block.id }} .nsr__submit svg {
+  width: 19px;
+  height: 19px;
+}
+#netsuite-returns-{{ block.id }} .nsr__privacy {
+  margin: 17px 0 0;
+  color: var(--nsr-muted);
+  font-size: 12px;
+  line-height: 1.65;
+  text-align: center;
+}
+#netsuite-returns-{{ block.id }} .nsr__notice {
+  margin: 12px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+#netsuite-returns-{{ block.id }} .nsr__instructions {
+  margin-top: 25px;
+  padding: 25px 27px;
+  border: 1px solid var(--nsr-border);
+  border-radius: 10px;
+  background: #fff;
+}
+#netsuite-returns-{{ block.id }} .nsr__instructions-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+#netsuite-returns-{{ block.id }} .nsr__instructions-icon {
+  display: flex;
+  flex: 0 0 35px;
+  width: 35px;
+  height: 35px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--nsr-border);
+  border-radius: 7px;
+}
+#netsuite-returns-{{ block.id }} .nsr__instructions-icon svg {
+  width: 20px;
+  height: 20px;
+}
+#netsuite-returns-{{ block.id }} .nsr__instructions-heading h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 650;
+}
+#netsuite-returns-{{ block.id }} .nsr__steps {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+#netsuite-returns-{{ block.id }} .nsr__steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: #555;
+  font-size: 13px;
+  line-height: 1.7;
+}
+#netsuite-returns-{{ block.id }} .nsr__step-number {
+  display: flex;
+  flex: 0 0 25px;
+  width: 25px;
+  height: 25px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--nsr-border);
+  border-radius: 50%;
+  color: var(--nsr-text);
+  font-size: 11px;
+  font-weight: 650;
+}
+@media (max-width: 600px) {
+  #netsuite-returns-{{ block.id }} {
+    padding: 30px 15px;
+  }
+  #netsuite-returns-{{ block.id }} .nsr__title {
+    font-size: 29px;
+    letter-spacing: -.5px;
+  }
+  #netsuite-returns-{{ block.id }} .nsr__intro {
+    margin-bottom: 24px;
+    font-size: 14px;
+  }
+  #netsuite-returns-{{ block.id }} .nsr__tabs {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  #netsuite-returns-{{ block.id }} .nsr__tab {
+    min-height: 92px;
+    padding: 15px 13px;
+  }
+  #netsuite-returns-{{ block.id }} .nsr__form {
+    padding: 21px 16px;
+  }
+  #netsuite-returns-{{ block.id }} .nsr__form-heading h3 {
+    font-size: 19px;
+  }
+  #netsuite-returns-{{ block.id }} .nsr__instructions {
+    padding: 21px 17px;
+  }
+}
+</style>
+
+<script>
+(() => {
+  const root = document.getElementById('netsuite-returns-{{ block.id }}');
+  if (!root || root.dataset.nsrInitialized === 'true') return;
+  root.dataset.nsrInitialized = 'true';
+
+  const tabs = root.querySelectorAll('.nsr__tab');
+  const forms = root.querySelectorAll('.nsr__form');
+
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const selected = tab.dataset.tab;
+
+      tabs.forEach((item) => {
+        const active = item === tab;
+        item.classList.toggle('is-active', active);
+        item.setAttribute('aria-selected', String(active));
+      });
+
+      forms.forEach((form) => {
+        form.hidden = form.dataset.form !== selected;
+      });
+    });
+  });
+
+  forms.forEach((form) => {
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      if (!form.reportValidity()) return;
+
+      const notice = form.querySelector('.nsr__notice');
+      notice.textContent = 'The return request service is not connected yet. Please contact the store for assistance.';
+    });
+  });
+})();
+</script>
+
+{% schema %}
+{
+  "name": "NetSuite Returns",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "How would you like to return?"
+    },
+    {
+      "type": "text",
+      "id": "description",
+      "label": "Description",
+      "default": "Choose how you placed your order to get started with your return request."
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Button and accent colour",
+      "default": "#252525"
+    }
+  ]
+}
+{% endschema %}

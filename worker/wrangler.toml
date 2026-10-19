@@ -1,0 +1,17 @@
+name = "netsuite-returns-worker"
+main = "src/index.js"
+compatibility_date = "2025-03-01"
+
+[vars]
+SHOPIFY_API_VERSION = "2026-04"
+R2_PUBLIC_DOMAIN = "http://localhost:8787"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "netsuite-returns-db"
+database_id = "local-dev-database"
+migrations_dir = "migrations"
+
+[[r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "netsuite-returns-attachments"

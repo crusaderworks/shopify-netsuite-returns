@@ -1,0 +1,64 @@
+# Environment Configuration
+.env
+.env.*
+
+# Dependency directory
+node_modules
+
+# Test coverage directory
+coverage
+
+# Ignore Apple macOS Desktop Services Store
+.DS_Store
+
+# Logs
+logs
+*.log
+
+# extensions build output
+extensions/*/build
+extensions/*/dist
+
+# lock files
+
+
+
+
+# Ignore shopify files created during app dev
+.shopify/*
+.shopify.lock
+# Frontend build output
+frontend/dist
+frontend/build
+
+# Worker build output
+worker/dist
+worker/build
+
+# Cloudflare local development
+.wrangler
+worker/.wrangler
+worker/.dev.vars
+
+# Local databases
+*.sqlite
+*.sqlite3
+worker/*.sqlite
+worker/*.sqlite3
+
+# Temporary files
+tmp/
+temp/
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+
+# Secrets / certificates
+*.pem
+*.key
+*.cert
