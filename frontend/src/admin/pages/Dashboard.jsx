@@ -129,7 +129,7 @@ function RecentReturns({ app, returns, loading, onViewAll, onSelectReturn }) {
       <Badge key={`status-${item.id}`} tone={status.tone}>{status.label}</Badge>,
       formatDate(item.createdAt),
       <Button key={`view-${item.id}`} size="slim" onClick={() => onSelectReturn(item.id)}>
-        👁 View
+        View
       </Button>,
     ];
   });
