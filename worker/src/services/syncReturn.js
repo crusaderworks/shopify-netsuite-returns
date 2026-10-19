@@ -2,7 +2,7 @@
 
 
 import { decryptToken } from '../utils/encryption.js';
-
+import { approveShopifyWebsiteReturn } from './shopify/approval.js';
 const NETSUITE_TIMEOUT_MS = 20000;
 
 /**
@@ -35,29 +35,30 @@ export async function syncReturnStatus({
   }
 
   // 1. Fetch the return request for this store and tenant.
-  const returnRow = await env.DB.prepare(`
-    SELECT
-      id,
-      tenant_id,
-      shop_domain,
-      source,
-      return_number,
-      order_number,
-      invoice_number,
-      customer_id,
-      reason,
-      customer_note,
-      items_json,
-      netsuite_return_id,
-      rma_number
-    FROM returns
-    WHERE id = ?
-      AND tenant_id = ?
-      AND shop_domain = ?
-    LIMIT 1
-  `)
-    .bind(returnId, tenantId, shopDomain)
-    .first();
+const returnRow = await env.DB.prepare(`
+  SELECT
+    id,
+    tenant_id,
+    shop_domain,
+    source,
+    return_number,
+    order_number,
+    invoice_number,
+    customer_id,
+    reason,
+    customer_note,
+    items_json,
+    netsuite_return_id,
+    shopify_order_id,
+    shopify_return_id
+  FROM returns
+  WHERE id = ?
+    AND tenant_id = ?
+    AND shop_domain = ?
+  LIMIT 1
+`)
+  .bind(returnId, tenantId, shopDomain)
+  .first();
 
   if (!returnRow) {
     throw new Error(
@@ -76,16 +77,25 @@ export async function syncReturnStatus({
     .toLowerCase();
 
   // 2. Website returns are handled locally.
-  if (source === 'website') {
+if (source === 'website') {
+  if (status !== 'approved') {
     return {
       success: true,
       source: 'website',
       synced: false,
+      shopifyReturnId: returnRow.shopify_return_id || null,
       netsuiteReturnId: returnRow.netsuite_return_id || null,
-      rmaNumber: returnRow.rma_number || null,
-      message: 'Website return handled locally.',
+      message: 'Shopify return creation is only performed on approval.',
     };
   }
+
+  return await approveShopifyWebsiteReturn({
+    env,
+    shop: shopDomain,
+    tenantId,
+    returnRow,
+  });
+}
 
   if (source !== 'assisted') {
     throw new Error(

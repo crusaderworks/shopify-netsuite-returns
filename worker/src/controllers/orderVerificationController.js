@@ -60,7 +60,6 @@ export async function verifyShopifyOrderController(request, env) {
     }, 400);
   }
 
-
   const orderNumber = cleanOrderNumber(body?.orderNumber);
   const email = String(body?.email || '').trim().toLowerCase();
   const context = { shop, tenantId: 'default' };
@@ -216,6 +215,39 @@ export async function verifyShopifyOrderController(request, env) {
       }, 409);
     }
 
+    const fulfillmentStatus = String(order.display_fulfillment_status || '').toLowerCase();
+    
+    const hasFulfilledLineItems = Array.isArray(order.line_items) && order.line_items.some(
+      (item) => String(item.fulfillment_status || '').toLowerCase() === 'fulfilled'
+    );
+
+    const isFulfilled =
+      fulfillmentStatus === 'fulfilled' ||
+      fulfillmentStatus === 'partial' ||
+      hasFulfilledLineItems;
+
+    if (!isFulfilled) {
+      await safeLogActivity(env, request, context, {
+        category: 'order_verification',
+        action: 'verify_order_unfulfilled',
+        status: 'warning',
+        message: `Order ${order.name} is not fulfilled yet.`,
+        source: 'customer',
+        order_id: String(order.id),
+        order_number: String(order.name),
+        error_code: 'ORDER_NOT_FULFILLED',
+        http_status: 400,
+        metadata: { orderNumber, fulfillmentStatus },
+      });
+
+      return json({
+        success: false,
+        verified: false,
+        errorCode: 'ORDER_NOT_FULFILLED',
+        message: 'This order has not been fulfilled yet and cannot be returned.',
+      }, 400);
+    }
+
     const existingReturn = await env.DB.prepare(`
       SELECT id, return_number, status, created_at
       FROM returns
@@ -258,7 +290,7 @@ export async function verifyShopifyOrderController(request, env) {
         id: String(order.id),
         orderNumber: order.name,
         createdAt: order.created_at,
-        fulfillmentStatus: order.display_fulfillment_status,
+        fulfillmentStatus: order.display_fulfillment_status || 'fulfilled',
 
         items: (order.line_items || []).map((item) => ({
           id: String(item.id),
@@ -297,7 +329,6 @@ export async function verifyShopifyOrderController(request, env) {
     }, 500);
   }
 }
-
 // =====================================================
 // NetSuite OAuth 1.0a helpers
 // =====================================================

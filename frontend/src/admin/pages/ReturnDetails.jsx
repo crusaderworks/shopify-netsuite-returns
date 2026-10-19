@@ -573,6 +573,45 @@ export default function ReturnDetails({ returnId, onBack }) {
                   </BlockStack>
                 </BlockStack>
               </Card>
+              {/* Shopify Return Details - only for approved website returns */}
+{String(returnItem.source || '').trim().toLowerCase() === 'website' &&
+  String(returnItem.status || '').trim().toLowerCase() === 'approved' && (
+    <Card>
+      <BlockStack gap="400">
+        <InlineStack
+          align="space-between"
+          blockAlign="center"
+          wrap
+        >
+          <Text as="h2" variant="headingMd">
+            Shopify Return Details
+          </Text>
+
+          <Badge tone="success">Approved</Badge>
+        </InlineStack>
+
+        <Divider />
+
+        <BlockStack gap="300">
+          <InlineStack
+            align="space-between"
+            blockAlign="center"
+            wrap
+          >
+            <Text as="span" tone="subdued">
+              Shopify Return ID
+            </Text>
+
+            <Text as="span" fontWeight="semibold">
+              {returnItem.shopify_return_id ??
+                returnItem.shopifyReturnId ??
+                '—'}
+            </Text>
+          </InlineStack>
+        </BlockStack>
+      </BlockStack>
+    </Card>
+  )}
 {/* NetSuite Return Details - only for approved assisted returns */}
 {String(returnItem.source || '').trim().toLowerCase() === 'assisted' &&
   String(returnItem.status || '').trim().toLowerCase() === 'approved' && (

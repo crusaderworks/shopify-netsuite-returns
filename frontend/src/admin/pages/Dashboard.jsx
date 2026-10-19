@@ -308,7 +308,7 @@ export default function Dashboard() {
               </BlockStack>
               <InlineStack gap="300" wrap>
                 <Button variant="primary" onClick={() => navigateTo(app, ROUTES.returns)}>Review return requests</Button>
-                <Button onClick={() => navigateTo(app, ROUTES.settings)}>App settings</Button>
+                <Button onClick={() => navigateTo(app, ROUTES.portalConfig)}>App settings</Button>
               </InlineStack>
             </BlockStack>
           </Card>

@@ -47,7 +47,7 @@ export function parseItems(value) {
 }
 
 /**
- * Returns SQL query string to select return details, including customer_email_enc for decryption.
+- Returns SQL query string to select return details, including customer_email_enc for decryption.
  */
 
 export function getReturnSelect() {
@@ -59,6 +59,7 @@ export function getReturnSelect() {
       shop_domain AS shopDomain,
       source,
       shopify_order_id AS shopifyOrderId,
+      shopify_return_id AS shopifyReturnId,
       order_number AS orderNumber,
       customer_id AS customerId,
       invoice_number AS invoiceNumber,
@@ -81,8 +82,8 @@ export function getReturnSelect() {
 
 
 /**
- * Global normalization function that automatically decrypts the customer email 
- * if customer_email_enc is present, falling back to the masked email.
+- Global normalization function that automatically decrypts the customer email 
+- if customer_email_enc is present, falling back to the masked email.
  */
 export async function normalizeReturn(row, env) {
   let customerEmail = row.customerEmailMasked || 'N/A';
