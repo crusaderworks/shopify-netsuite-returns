@@ -1,24 +1,19 @@
 
-# Shopify CLI app configuration
-
 client_id = "0fee8d770cf615d823922004e280522f"
 name = "NetSuite Returns"
-application_url = "https://shopify.dev/apps/default-app-home"
+application_url = "https://spread-insert-distant-york.trycloudflare.com"
 embedded = true
 
 [build]
-automatically_update_urls_on_dev = true
+automatically_update_urls_on_dev = false
 
 [webhooks]
-api_version = "2026-10" 
+api_version = "2026-10"
 
 [access_scopes]
-scopes = "read_orders,read_customers,write_orders,write_returns,read_merchant_managed_fulfillment_orders"
+scopes = "read_orders,read_customers"
 
 [auth]
 redirect_urls = [
-  "https://shopify.dev/apps/default-app-home/api/auth"
+  "https://mlb-verde-staffing-demands.trycloudflare.com/api/auth/callback"
 ]
-
-
-                   

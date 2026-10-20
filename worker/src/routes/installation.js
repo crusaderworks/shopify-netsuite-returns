@@ -1,5 +1,6 @@
 
 import { json } from '../utils/response.js';
+import { encryptToken } from '../utils/encryption.js';
 
 // Save or reactivate an existing shop installation.
 export async function saveShopInstallation(
@@ -8,83 +9,99 @@ export async function saveShopInstallation(
 ) {
   const storeName = shop.replace('.myshopify.com', '');
 
-  // Reuse the existing tenant ID for this shop, if available.
-  const existingInstallation = await env.DB.prepare(`
-    SELECT tenant_id
-    FROM shop_installations
-    WHERE shop_domain = ?
-    LIMIT 1
-  `)
-    .bind(shop)
-    .first();
+  try {
+    // Step 1: Check existing installation.
+    const existingInstallation = await env.DB.prepare(`
+      SELECT tenant_id
+      FROM shop_installations
+      WHERE shop_domain = ?
+      LIMIT 1
+    `)
+      .bind(shop)
+      .first();
 
-  const existingTenantId = existingInstallation?.tenant_id;
-  const finalTenantId = existingTenantId || tenantId;
+    // Step 2: Determine tenant ID.
+    const existingTenantId = existingInstallation?.tenant_id;
+    const finalTenantId = existingTenantId || tenantId;
 
-  if (!finalTenantId) {
-    throw new Error('Unable to determine tenant ID for this shop.');
-  }
+    if (!finalTenantId) {
+      throw new Error(
+        'Unable to determine tenant ID for this shop.',
+      );
+    }
 
-  // Reactivate/update the existing tenant instead of creating a new one.
-  await env.DB.prepare(`
-    INSERT INTO tenants (
-      id,
-      name,
-      status,
-      updated_at
-    )
-    VALUES (?, ?, 'active', datetime('now'))
-    ON CONFLICT(id) DO UPDATE SET
-      status = 'active',
-      updated_at = datetime('now')
-  `)
-    .bind(finalTenantId, storeName)
-    .run();
+    // Step 3: Encrypt the access token before database storage.
+    // Never store the raw Shopify access token in access_token_enc.
+    let encryptedAccessToken = null;
 
-  // Reactivate/update the existing installation.
-  await env.DB.prepare(`
-    INSERT INTO shop_installations (
-      shop_domain,
-      tenant_id,
-      access_token_enc,
-      granted_scopes,
-      installation_status,
-      installed_at,
-      uninstalled_at,
-      updated_at
-    )
-    VALUES (?, ?, ?, ?, 'active', datetime('now'), NULL, datetime('now'))
-    ON CONFLICT(shop_domain) DO UPDATE SET
-      tenant_id = excluded.tenant_id,
-      access_token_enc = COALESCE(
-        excluded.access_token_enc,
-        shop_installations.access_token_enc
-      ),
-      granted_scopes = COALESCE(
-        excluded.granted_scopes,
-        shop_installations.granted_scopes
-      ),
-      installation_status = 'active',
-      installed_at = COALESCE(
-        shop_installations.installed_at,
-        datetime('now')
-      ),
-      uninstalled_at = NULL,
-      updated_at = datetime('now')
-  `)
-    .bind(
+    if (accessToken) {
+      encryptedAccessToken = await encryptToken(accessToken, env);
+    }
+
+    // Step 4: Insert or reactivate tenant.
+    await env.DB.prepare(`
+      INSERT INTO tenants (
+        id,
+        name,
+        status,
+        updated_at
+      )
+      VALUES (?, ?, 'active', datetime('now'))
+      ON CONFLICT(id) DO UPDATE SET
+        status = 'active',
+        updated_at = datetime('now')
+    `)
+      .bind(finalTenantId, storeName)
+      .run();
+
+    // Step 5: Insert or update shop installation.
+    // If no new token is supplied, preserve the existing token.
+    const installationResult = await env.DB.prepare(`
+      INSERT INTO shop_installations (
+        shop_domain,
+        tenant_id,
+        access_token_enc,
+        granted_scopes,
+        installation_status,
+        installed_at,
+        uninstalled_at,
+        updated_at
+      )
+      VALUES (?, ?, ?, ?, 'active', datetime('now'), NULL, datetime('now'))
+      ON CONFLICT(shop_domain) DO UPDATE SET
+        tenant_id = excluded.tenant_id,
+        access_token_enc = COALESCE(
+          excluded.access_token_enc,
+          shop_installations.access_token_enc
+        ),
+        granted_scopes = COALESCE(
+          excluded.granted_scopes,
+          shop_installations.granted_scopes
+        ),
+        installation_status = 'active',
+        installed_at = COALESCE(
+          shop_installations.installed_at,
+          datetime('now')
+        ),
+        uninstalled_at = NULL,
+        updated_at = datetime('now')
+    `)
+      .bind(
+        shop,
+        finalTenantId,
+        encryptedAccessToken,
+        scopes || null,
+      )
+      .run();
+
+    return {
       shop,
-      finalTenantId,
-      accessToken || null,
-      scopes || null,
-    )
-    .run();
-
-  return {
-    shop,
-    tenantId: finalTenantId,
-    reinstalled: Boolean(existingInstallation),
-  };
+      tenantId: finalTenantId,
+      reinstalled: Boolean(existingInstallation),
+    };
+  } catch (err) {
+    throw err;
+  }
 }
 
 // POST /api/installation
@@ -118,10 +135,6 @@ export async function handleInstallation(request, env) {
       scopes,
     });
 
-    console.log(
-      `[Installation] Shop activated/updated: ${shop}; tenant: ${result.tenantId}`,
-    );
-
     return json(
       {
         success: true,
@@ -135,8 +148,6 @@ export async function handleInstallation(request, env) {
       200,
     );
   } catch (err) {
-    console.error('[Installation Error]:', err);
-
     return json(
       {
         success: false,
