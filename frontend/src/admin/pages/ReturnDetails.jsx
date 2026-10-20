@@ -548,32 +548,7 @@ export default function ReturnDetails({ returnId, onBack }) {
                   </BlockStack>
                 </BlockStack>
               </Card>
-              
-            </BlockStack>
-          </Layout.Section>
-
-          <Layout.Section>
-            <BlockStack gap="400">
-              <Card>
-                <BlockStack gap="400">
-                  <Text as="h2" variant="headingMd">
-                    Return Reason &amp; Resolution
-                  </Text>
-                  <Divider />
-                  <BlockStack gap="300">
-                    <InfoRow label="Reason">
-                      {returnItem.reason || 'No reason provided'}
-                    </InfoRow>
-                    <InfoRow label="Requested Resolution">
-                      {returnItem.requestedResolution || 'Not specified'}
-                    </InfoRow>
-                    <InfoRow label="Customer Note">
-                      {returnItem.customerNote || 'None'}
-                    </InfoRow>
-                  </BlockStack>
-                </BlockStack>
-              </Card>
-              {/* Shopify Return Details - only for approved website returns */}
+                            {/* Shopify Return Details - only for approved website returns */}
 {String(returnItem.source || '').trim().toLowerCase() === 'website' &&
   String(returnItem.status || '').trim().toLowerCase() === 'approved' && (
     <Card>
@@ -669,6 +644,31 @@ export default function ReturnDetails({ returnId, onBack }) {
       </BlockStack>
     </Card>
   )}
+            </BlockStack>
+          </Layout.Section>
+
+          <Layout.Section>
+            <BlockStack gap="400">
+              <Card>
+                <BlockStack gap="400">
+                  <Text as="h2" variant="headingMd">
+                    Return Reason &amp; Resolution
+                  </Text>
+                  <Divider />
+                  <BlockStack gap="300">
+                    <InfoRow label="Reason">
+                      {returnItem.reason || 'No reason provided'}
+                    </InfoRow>
+                    <InfoRow label="Requested Resolution">
+                      {returnItem.requestedResolution || 'Not specified'}
+                    </InfoRow>
+                    <InfoRow label="Customer Note">
+                      {returnItem.customerNote || 'None'}
+                    </InfoRow>
+                  </BlockStack>
+                </BlockStack>
+              </Card>
+
               <Card>
                 <BlockStack gap="400">
                   <Text as="h2" variant="headingMd">
