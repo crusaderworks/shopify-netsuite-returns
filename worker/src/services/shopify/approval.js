@@ -17,9 +17,7 @@ function toOrderGid(value) {
 function toLineItemGid(value) {
   const id = String(value ?? '').trim();
 
-  if (!id) {
-    return '';
-  }
+  if (!id) return '';
 
   return id.startsWith('gid://')
     ? id
@@ -52,6 +50,10 @@ async function shopifyGraphQL({
   variables = {},
   env,
 }) {
+  if (!shop || !accessToken) {
+    throw new Error('Shop domain or Shopify access token is missing.');
+  }
+
   const apiVersion = String(
     env.SHOPIFY_API_VERSION || '2026-04',
   ).trim();
@@ -92,8 +94,7 @@ async function shopifyGraphQL({
   if (!response.ok) {
     throw new Error(
       `Shopify API failed (HTTP ${response.status}): ${
-        result?.errors?.[0]?.message ||
-        responseText.slice(0, 500)
+        result?.errors?.[0]?.message || responseText.slice(0, 500)
       }`,
     );
   }
@@ -125,18 +126,14 @@ async function getShopifyAccessToken({
     .first();
 
   if (!installation) {
-    throw new Error(
-      `Shopify installation was not found for ${shop}.`,
-    );
+    throw new Error(`Shopify installation was not found for ${shop}.`);
   }
 
   if (
     installation.installation_status &&
     installation.installation_status !== 'active'
   ) {
-    throw new Error(
-      `Shopify installation is not active for ${shop}.`,
-    );
+    throw new Error(`Shopify installation is not active for ${shop}.`);
   }
 
   if (!installation.access_token_enc) {
@@ -168,6 +165,16 @@ async function getOrderAndFulfillmentLineItems({
         name
         note
         tags
+        lineItems(first: 250) {
+          nodes {
+            id
+            name
+            quantity
+            currentQuantity
+            refundableQuantity
+            unfulfilledQuantity
+          }
+        }
         fulfillments {
           id
           status
@@ -179,6 +186,12 @@ async function getOrderAndFulfillmentLineItems({
                 id
               }
             }
+          }
+        }
+        returns(first: 20) {
+          nodes {
+            id
+            status
           }
         }
       }
@@ -211,13 +224,33 @@ async function getOrderAndFulfillmentLineItems({
     }
   }
 
+  // Diagnostic information to help identify Shopify's quantity rejection.
+  console.log(
+    '[DEBUG][Return Eligibility]',
+    JSON.stringify(
+      {
+        orderId: data.order.id,
+        orderName: data.order.name,
+        lineItems: data.order.lineItems?.nodes || [],
+        fulfillmentLineItems,
+        existingReturns: data.order.returns?.nodes || [],
+      },
+      null,
+      2,
+    ),
+  );
+
   return {
     order: data.order,
     fulfillmentLineItems,
   };
 }
 
-function buildReturnLineItems(items, fulfillmentLineItems, fallbackNote = '') {
+function buildReturnLineItems(
+  items,
+  fulfillmentLineItems,
+  fallbackNote = '',
+) {
   const result = [];
 
   for (const item of items) {
@@ -227,7 +260,7 @@ function buildReturnLineItems(items, fulfillmentLineItems, fallbackNote = '') {
       item?.lineItem?.id;
 
     const lineItemGid = toLineItemGid(rawLineItemId);
-    const quantity = Number.parseInt(item?.quantity, 10);
+    const quantity = Number(item?.quantity);
 
     if (!lineItemGid) {
       throw new Error(
@@ -256,15 +289,25 @@ function buildReturnLineItems(items, fulfillmentLineItems, fallbackNote = '') {
     for (const line of matchingFulfillmentLines) {
       if (remainingQuantity <= 0) break;
 
+      const fulfilledQuantity = Number(line.quantity);
       const takeQuantity = Math.min(
         remainingQuantity,
-        line.quantity,
+        fulfilledQuantity,
       );
 
-      if (takeQuantity <= 0) continue;
+      if (
+        !Number.isInteger(fulfilledQuantity) ||
+        fulfilledQuantity <= 0 ||
+        takeQuantity <= 0
+      ) {
+        continue;
+      }
 
       const returnReasonNote = String(
-        item?.reason || item?.customerNote || fallbackNote || ''
+        item?.reason ||
+          item?.customerNote ||
+          fallbackNote ||
+          '',
       ).trim() || 'Return requested from NetSuite Returns app';
 
       result.push({
@@ -280,9 +323,13 @@ function buildReturnLineItems(items, fulfillmentLineItems, fallbackNote = '') {
     if (remainingQuantity > 0) {
       throw new Error(
         `Requested return quantity exceeds the fulfilled quantity ` +
-        `for line item ${lineItemGid}.`,
+          `for line item ${lineItemGid}.`,
       );
     }
+  }
+
+  if (result.length === 0) {
+    throw new Error('No valid fulfilled return line items were built.');
   }
 
   return result;
@@ -294,7 +341,6 @@ async function createShopifyReturn({
   accessToken,
   orderId,
   returnLineItems,
-  customerNote,
 }) {
   const mutation = `
     mutation CreateShopifyReturn($returnInput: ReturnInput!) {
@@ -311,34 +357,46 @@ async function createShopifyReturn({
     }
   `;
 
+  const returnInput = {
+    orderId,
+    returnLineItems: returnLineItems.map((item) => ({
+      fulfillmentLineItemId: item.fulfillmentLineItemId,
+      quantity: item.quantity,
+      returnReason: item.returnReason,
+      ...(item.returnReasonNote
+        ? { returnReasonNote: item.returnReasonNote }
+        : {}),
+    })),
+    notifyCustomer: false,
+  };
+
+  console.log(
+    '[DEBUG][Shopify returnCreate payload]',
+    JSON.stringify(returnInput, null, 2),
+  );
+
   const data = await shopifyGraphQL({
     env,
     shop,
     accessToken,
     query: mutation,
-    variables: {
-      returnInput: {
-        orderId,
-        returnLineItems: returnLineItems.map((item) => ({
-          fulfillmentLineItemId: item.fulfillmentLineItemId,
-          quantity: item.quantity,
-          returnReason: item.returnReason,
-          ...(item.returnReasonNote
-            ? { returnReasonNote: item.returnReasonNote }
-            : {}),
-        })),
-        ...(customerNote ? { notifyCustomer: false } : {}),
-      },
-    },
+    variables: { returnInput },
   });
 
   const result = data?.returnCreate;
   const userErrors = result?.userErrors || [];
 
   if (userErrors.length) {
+    // Keep Shopify's field path as well as its message.
     throw new Error(
       `Shopify return creation failed: ${userErrors
-        .map((item) => item.message)
+        .map((item) => {
+          const field = Array.isArray(item.field)
+            ? item.field.join('.')
+            : item.field;
+
+          return `${field ? `${field}: ` : ''}${item.message}`;
+        })
         .join('; ')}`,
     );
   }
@@ -369,7 +427,9 @@ async function updateShopifyOrder({
 
   const noteParts = [
     String(order.note || '').trim(),
-    `Return approved in NetSuite Returns app: ${returnRow.return_number || returnRow.id}`,
+    `Return approved in NetSuite Returns app: ${
+      returnRow.return_number || returnRow.id
+    }`,
     `Shopify Return ID: ${shopifyReturnId}`,
   ].filter(Boolean);
 
@@ -404,8 +464,7 @@ async function updateShopifyOrder({
       },
     });
 
-    const result = data?.orderUpdate;
-    const userErrors = result?.userErrors || [];
+    const userErrors = data?.orderUpdate?.userErrors || [];
 
     if (userErrors.length) {
       throw new Error(
@@ -452,8 +511,8 @@ async function updateShopifyOrder({
 }
 
 /**
-- Called when a website return is approved.
-- Assisted returns must continue through the existing NetSuite flow.
+ * Called when a website return is approved.
+ * Assisted returns must continue through the existing NetSuite flow.
  */
 export async function approveShopifyWebsiteReturn({
   env,
@@ -465,7 +524,9 @@ export async function approveShopifyWebsiteReturn({
     throw new Error('Database binding env.DB is not configured.');
   }
 
-  const shopDomain = String(shop || returnRow?.shop_domain || '')
+  const shopDomain = String(
+    shop || returnRow?.shop_domain || '',
+  )
     .trim()
     .toLowerCase();
 
@@ -489,8 +550,7 @@ export async function approveShopifyWebsiteReturn({
 
   const orderId = toOrderGid(returnRow.shopify_order_id);
 
-  // Always load the order, including on retries, so order notes/tags
-  // can be retried if the Shopify return was already created.
+  // Load order and fulfillment information on every attempt.
   const { order, fulfillmentLineItems } =
     await getOrderAndFulfillmentLineItems({
       env,
@@ -517,14 +577,12 @@ export async function approveShopifyWebsiteReturn({
       accessToken,
       orderId,
       returnLineItems,
-      customerNote: String(returnRow.customer_note || '').trim(),
     });
 
     shopifyReturnId = createdReturn.id;
     shopifyReturnStatus = createdReturn.status;
 
-    // Save the ID immediately to prevent duplicate return creation
-    // if the subsequent order note/tag update fails.
+    // Save the ID immediately to prevent duplicate creation on retries.
     await env.DB.prepare(`
       UPDATE returns
       SET shopify_return_id = ?,
@@ -543,7 +601,7 @@ export async function approveShopifyWebsiteReturn({
       .run();
   }
 
-  // Run this on retries too: note/tag failures should be recoverable.
+  // Retry order note/tag updates even if the Shopify return already exists.
   await updateShopifyOrder({
     env,
     shop: shopDomain,
