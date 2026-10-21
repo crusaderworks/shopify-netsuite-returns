@@ -88,9 +88,9 @@ export default {
       }
 
       // Manual / Postman Installation
-      if (pathname === '/api/installation' && method === 'POST') {
-        return await handleInstallation(request, env);
-      }
+      // if (pathname === '/api/installation' && method === 'POST') {
+      //   return await handleInstallation(request, env);
+      // }
 
       // App Uninstalled Webhook
       if (
