@@ -62,3 +62,9 @@ temp/
 *.pem
 *.key
 *.cert
+
+# Local database backups
+worker/backups/
+
+# Local database backups
+worker/backups/

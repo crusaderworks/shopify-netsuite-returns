@@ -1,4 +1,4 @@
-name = "netsuite-returns-worker"
+name = "shopify-netsuite-returns-worker"
 main = "src/index.js"
 compatibility_date = "2025-03-01"
 
