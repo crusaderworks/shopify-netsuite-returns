@@ -1,6 +1,3 @@
-PRAGMA foreign_keys = OFF;
-
-BEGIN TRANSACTION;
 
 CREATE TABLE activity_logs_new (
     id TEXT PRIMARY KEY,
@@ -98,7 +95,3 @@ FROM activity_logs;
 DROP TABLE activity_logs;
 
 ALTER TABLE activity_logs_new RENAME TO activity_logs;
-
-COMMIT;
-
-PRAGMA foreign_keys = ON;

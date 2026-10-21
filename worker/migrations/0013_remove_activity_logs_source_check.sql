@@ -1,6 +1,4 @@
 
-PRAGMA defer_foreign_keys = ON;
-
 CREATE TABLE activity_logs_new (
     id TEXT PRIMARY KEY,
     tenant_id TEXT,

@@ -9,7 +9,7 @@ R2_PUBLIC_DOMAIN = "http://localhost:8787"
 [[d1_databases]]
 binding = "DB"
 database_name = "netsuite-returns-db"
-database_id = "local-dev-database"
+database_id = "a7ee5883-f7da-4217-b1f4-4867615e6285"
 migrations_dir = "migrations"
 
 [[r2_buckets]]
