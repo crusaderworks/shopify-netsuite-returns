@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ArrowRightIcon, CheckCircleIcon } from '../../../components/icons/AppIcons'
 import Button from '../../../components/ui/Button'
-
+import { STATUS_PAGE_URL } from '../../../config/env'
 // Helper to construct secure status URL using returnNumber and email with access token
 function getFormattedStatusUrl(request) {
   const returnNumber = 
@@ -25,7 +25,7 @@ function getFormattedStatusUrl(request) {
   // Extract access token if present in current URL or sessionStorage
   const accessParam = urlParams.get('access') || sessionStorage.getItem('storefront_access') || ''
 
-  const baseUrl = `${window.location.origin}/return-status`
+  const baseUrl = `${STATUS_PAGE_URL}`
   const queryParams = new URLSearchParams()
 
   if (returnNumber) queryParams.set('returnNumber', returnNumber)
@@ -174,6 +174,7 @@ export default function ReturnSuccess({ request, onNewRequest }) {
       {/* View Return Status Button (Using returnNumber & email) */}
       <div style={{ marginBottom: '14px' }}>
         <a 
+          target="_blank"
           href={statusUrl}
           style={{
             display: 'inline-flex',

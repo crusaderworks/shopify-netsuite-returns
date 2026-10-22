@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 
 import '../styles/storefront.css'
 
-
+import { STATUS_PAGE_URL } from '../../config/env'
 
 import Alert from '../../components/ui/Alert'
 
@@ -94,16 +94,23 @@ function getStorefrontUrl(path) {
 
  */
 
-function getStorefrontStatusUrl(baseUrlPath) {
+function getStorefrontStatusUrl(rawUrl) {
+  const url = new URL(rawUrl, window.location.origin)
+  const urlParams = new URLSearchParams(url.search)
 
-  const urlParams = new URLSearchParams(window.location.search)
+  const accessParam =
+    urlParams.get('access') ||
+    sessionStorage.getItem('storefront_access') ||
+    ''
 
-  let accessParam = urlParams.get('access') || sessionStorage.getItem('storefront_access') || ''
+  const statusParams = new URLSearchParams(url.search)
+  statusParams.delete('access')
 
-  const separator = baseUrlPath.includes('?') ? '&' : '?'
+  if (accessParam) {
+    statusParams.set('access', accessParam)
+  }
 
-  return `${baseUrlPath}${accessParam ? `${separator}access=${encodeURIComponent(accessParam)}` : ''}`
-
+  return `${STATUS_PAGE_URL}?${statusParams.toString()}`
 }
 
 
@@ -1417,7 +1424,12 @@ function handleSuccessResponse(result, isExisting) {
 
                   <div>
 
-                    <a href={existingReturnPrompt.statusUrl} style={{ color: 'inherit', fontWeight: 600, textDecoration: 'none' }}>
+                  <a
+  href={existingReturnPrompt.statusUrl}
+  target="_blank"
+  rel="noopener noreferrer"
+  style={{ color: 'inherit', fontWeight: 600, textDecoration: 'none' }}
+>
 
                       <span style={{ textDecoration: 'underline' }}>View existing return status ({existingReturnPrompt.returnNumber})</span> &rarr;
 
