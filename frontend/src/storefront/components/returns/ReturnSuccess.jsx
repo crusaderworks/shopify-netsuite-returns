@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { ArrowRightIcon, CheckCircleIcon } from '../../../components/icons/AppIcons'
 import Button from '../../../components/ui/Button'
-import { STATUS_PAGE_URL } from '../../../config/env'
+
 // Helper to construct secure status URL using returnNumber and email with access token
-function getFormattedStatusUrl(request) {
+function getFormattedStatusUrl(request, statusPageUrl) {
   const returnNumber = 
     request.returnNumber || 
     request.return_number || 
@@ -25,7 +25,7 @@ function getFormattedStatusUrl(request) {
   // Extract access token if present in current URL or sessionStorage
   const accessParam = urlParams.get('access') || sessionStorage.getItem('storefront_access') || ''
 
-  const baseUrl = `${STATUS_PAGE_URL}`
+ const baseUrl = statusPageUrl
   const queryParams = new URLSearchParams()
 
   if (returnNumber) queryParams.set('returnNumber', returnNumber)
@@ -56,7 +56,11 @@ function PdfIcon({ size = 14, ...props }) {
   )
 }
 
-export default function ReturnSuccess({ request, onNewRequest }) {
+export default function ReturnSuccess({
+  request,
+  onNewRequest,
+  statusPageUrl,
+}) {
   const [copied, setCopied] = useState(false)
   const returnNumber = 
     request.returnNumber || 
@@ -66,7 +70,7 @@ export default function ReturnSuccess({ request, onNewRequest }) {
     'N/A'
   
   // Always use returnNumber and email based status URL
-  const statusUrl = getFormattedStatusUrl(request)
+  const statusUrl = getFormattedStatusUrl(request, statusPageUrl)
 
   function handleCopy() {
     navigator.clipboard.writeText(returnNumber).then(() => {

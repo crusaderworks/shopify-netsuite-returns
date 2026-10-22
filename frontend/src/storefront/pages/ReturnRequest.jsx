@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 
 import '../styles/storefront.css'
 
-import { STATUS_PAGE_URL } from '../../config/env'
+
 
 import Alert from '../../components/ui/Alert'
 
@@ -94,25 +94,26 @@ function getStorefrontUrl(path) {
 
  */
 
-function getStorefrontStatusUrl(rawUrl) {
-  const url = new URL(rawUrl, window.location.origin)
-  const urlParams = new URLSearchParams(url.search)
+function getStorefrontStatusUrl(configuredStatusPageUrl, returnNumber, email) {
+  if (!configuredStatusPageUrl) return ''
 
+  const url = new URL(configuredStatusPageUrl)
+
+  url.searchParams.set('returnNumber', returnNumber)
+  url.searchParams.set('email', email)
+
+  const currentParams = new URLSearchParams(window.location.search)
   const accessParam =
-    urlParams.get('access') ||
+    currentParams.get('access') ||
     sessionStorage.getItem('storefront_access') ||
     ''
 
-  const statusParams = new URLSearchParams(url.search)
-  statusParams.delete('access')
-
   if (accessParam) {
-    statusParams.set('access', accessParam)
+    url.searchParams.set('access', accessParam)
   }
 
-  return `${STATUS_PAGE_URL}?${statusParams.toString()}`
+  return url.toString()
 }
-
 
 
 export default function ReturnRequest() {
@@ -157,7 +158,8 @@ export default function ReturnRequest() {
 
     resolutions: [],
 
-    conditionQuestions: []
+    conditionQuestions: [],
+    statusPageUrl:''
 
   })
 
@@ -235,7 +237,10 @@ export default function ReturnRequest() {
 
           if (data.data) {
 
-            setPortalConfig(data.data)
+           setPortalConfig({
+  ...data.data,
+  statusPageUrl: data.data.STATUS_PAGE_URL || '',
+})
 
             const initialConditions = {}
 
@@ -553,7 +558,11 @@ export default function ReturnRequest() {
 
           const rawStatusUrl = `${window.location.origin}/return-status?returnNumber=${encNum}&email=${encEmail}`
 
-          const formattedStatusUrl = getStorefrontStatusUrl(rawStatusUrl)
+          const formattedStatusUrl = getStorefrontStatusUrl(
+  portalConfig.statusPageUrl,
+  retNum,
+  emailForUrl
+)
 
 
 
@@ -824,7 +833,11 @@ function handleSuccessResponse(result, isExisting) {
     const encEmail = encodeURIComponent(userEmail)
     
     const rawStatusUrl = `${window.location.origin}/return-status?returnNumber=${encNumber}&email=${encEmail}`
-    const formattedStatusUrl = getStorefrontStatusUrl(result.statusUrl || rawStatusUrl)
+const formattedStatusUrl = getStorefrontStatusUrl(
+  portalConfig.statusPageUrl,
+  returnNumber,
+  userEmail
+)
 
     setRequest({
       returnId: result.returnId,
@@ -906,7 +919,7 @@ function handleSuccessResponse(result, isExisting) {
 
         <div className="return-container" style={{ maxWidth: '640px', margin: '0 auto', padding: '12px' }}>
 
-          <ReturnSuccess request={request} onNewRequest={() => setRequest(null)} />
+          <ReturnSuccess request={request}  onNewRequest={() => setRequest(null)}  statusPageUrl={portalConfig.statusPageUrl} />
 
         </div>
 
