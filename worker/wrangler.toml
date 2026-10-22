@@ -4,7 +4,14 @@ compatibility_date = "2025-03-01"
 
 [vars]
 SHOPIFY_API_VERSION = "2026-04"
-R2_PUBLIC_DOMAIN = "http://localhost:8787"
+SHOPIFY_APP_HANDLE = "netsuite-returns-2"
+R2_PUBLIC_DOMAIN = "https://shopify-netsuite-returns-worker.holy-waterfall-8e46.workers.dev"
+STOREFRONT_BASE_URL = "https://shopify-netsuite-returns.holy-waterfall-8e46.workers.dev/"
+
+
+[observability]
+enabled = false
+
 
 [[d1_databases]]
 binding = "DB"
