@@ -1,4 +1,13 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700;800&display=swap');
 
+body , label, input {
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #111827;
+  background-color: #f9fafb;
+}
 .return-portal {
   --return-accent: #65002f;
   --return-text: #292329;
@@ -16,6 +25,7 @@
 }
 
 .return-container {
+  font-family: 'Montserrat', sans-serif;
   width: 100%;
   max-width: 770px;
   margin: 0 auto;
